@@ -1,0 +1,31 @@
+# Solis — TV 客户端 gitignore
+
+# 依赖与构建产物
+node_modules/
+dist/
+dev-dist/
+
+# 本地环境
+.env*.local
+
+# 本地参考源码（不入库）
+_legacy-src/
+
+# Capacitor / Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+android/*.jks
+android/keystore.properties.example.bak
+# cap sync 生成的同步产物（构建时由 npm run cap:sync:android 重新生成）
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/capacitor-cordova-android-plugins/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

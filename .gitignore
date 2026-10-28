@@ -1,0 +1,18 @@
+# 白名单式 gitignore：仓库只收录客户端与服务端
+
+/*
+!/Solis/
+!/qishui-api/
+!/README.md
+!/.gitignore
+
+# 依赖
+node_modules/
+
+# 服务端运行时数据与上游 git 备份
+qishui-api/.data/
+qishui-api/.git-upstream-backup/
+qishui-api/_tmp-*
+
+# 字节跳动专有签名 SDK（从汽水网页端提取，版权原因不入库；本地保留供签名服务运行）
+qishui-api/signer/security/

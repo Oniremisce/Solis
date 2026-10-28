@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Solis</string>
+    <string name="title_activity_main">Solis</string>
+    <string name="package_name">top.izuna.solis.tv</string>
+    <string name="custom_url_scheme">top.izuna.solis.tv</string>
+</resources>

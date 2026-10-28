@@ -1,0 +1,1239 @@
+/* src/index.css — Solis TV 壳全局样式。
+   TV 壳不引 tailwind：全手写 CSS，纯色块 + 圆角矩形，杜绝滤镜/模糊/阴影动画。
+   设计基准：1080p@320dpi 渲染、3 米观看距离（字号偏大）、DPAD 焦点优先。 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    background-color: #09090b;
+    color: #fafafa;
+    font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    /* TV 无触屏，禁掉文本选择与触摸高亮。 */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 骨架占位页 */
+.tv-skeleton {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.tv-skeleton-title {
+    font-size: 72px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+
+.tv-skeleton-meta {
+    font-size: 22px;
+    color: #a1a1aa;
+}
+
+.tv-skeleton-hint {
+    font-size: 18px;
+    color: #52525b;
+}
+
+/* 主页全局焦点语言：白框线弃用，统一「大小对比 + 平滑动效」标示（与设置页挡位一致）。 */
+:focus-visible {
+    outline: none;
+}
+
+/* 图标按钮（顶栏/播放控制/弹窗关闭）：常态预置过渡，焦点=圆形半透明背板 + 放大。
+   TV 全键盘导航用 :focus 保证指示始终显示。 */
+.avatar-btn,
+.icon-btn,
+.player-ctrl-btn,
+.player-action-btn,
+.dialog-close {
+    transition: transform 0.2s ease-out, background-color 0.2s ease-out;
+}
+
+.avatar-btn:focus,
+.icon-btn:focus,
+.player-ctrl-btn:focus,
+.player-action-btn:focus,
+.dialog-close:focus {
+    background-color: rgba(250, 250, 250, 0.15);
+    transform: scale(1.1);
+    outline: none;
+}
+
+/* ─── 通用根布局 ─── */
+.tv-root {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.tv-footer {
+    position: absolute;
+    right: 32px;
+    bottom: 20px;
+    font-size: 16px;
+    color: #52525b;
+}
+
+/* ─── 主页骨架 ─── */
+.home-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 48px 0;
+}
+
+.home-brand {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 三按钮内层（浮窗期间整体 inert，开关按钮独立在外保持可点）。 */
+.topbar-actions-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 顶栏图标按钮：无背板，仅纯线条图标；预置对称 padding 供焦点圆形背板扩边。 */
+.avatar-btn {
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    color: #a1a1aa;
+}
+
+.avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.icon-btn {
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    color: #fafafa;
+}
+
+/* 选项卡 */
+.home-tabs {
+    display: flex;
+    gap: 16px;
+    padding: 24px 48px;
+}
+
+.tab-btn {
+    padding: 12px 32px;
+    font-size: 24px;
+    color: #a1a1aa;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    transition: transform 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.tab-btn:focus {
+    outline: none;
+    transform: scale(1.1);
+    color: #fafafa;
+    background-color: rgba(250, 250, 250, 0.1);
+    border-color: rgba(250, 250, 250, 0.35);
+}
+
+/* 当前激活项（白底黑字）：聚焦时保持底色仅放大。 */
+.tab-btn:focus.active {
+    color: #09090b;
+    background-color: #fafafa;
+    border-color: #fafafa;
+}
+
+.tab-btn.active {
+    color: #09090b;
+    background-color: #fafafa;
+    border-color: #fafafa;
+    font-weight: 600;
+}
+
+.home-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    padding: 8px 48px 72px;
+}
+
+.home-placeholder {
+    margin: auto;
+    font-size: 26px;
+    color: #52525b;
+}
+
+/* ─── 播放页（默认/熟悉/新鲜三模式共用同一套组件） ─── */
+.player-host {
+    width: 100%;
+    height: 100%;
+}
+
+/* 「我的」页隐藏播放页而非卸载：切选项卡不中断播放。 */
+.player-host.hidden {
+    display: none;
+}
+
+.player-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ─── 侧滑浮层通用：遮罩（锁定主页操作） ─── */
+.drawer-mask {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 25; /* 低于侧滑层 30 */
+}
+
+.drawer-mask.show {
+    display: block;
+    animation: mask-fade-in 0.25s ease-out;
+}
+
+@keyframes mask-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ─── 播放列表侧滑窗（左侧滑出，覆盖屏幕左侧全高不留空） ─── */
+.playlist-drawer {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 600px; /* 480px 的 1.25 倍 */
+    flex-direction: column;
+    background-color: #18181b;
+    border-right: 1px solid #27272a;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 30;
+    scroll-behavior: smooth; /* 焦点移动时列表平滑滚动跟随 */
+}
+
+/* ─── 列表滚动条：无轨道无边框的细悬浮条（半透明圆角，悬停加深） ─── */
+.playlist-drawer::-webkit-scrollbar,
+.mine-panel::-webkit-scrollbar,
+.mine-wrap::-webkit-scrollbar,
+.settings-drawer::-webkit-scrollbar,
+.search-drawer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.playlist-drawer::-webkit-scrollbar-track,
+.mine-panel::-webkit-scrollbar-track,
+.mine-wrap::-webkit-scrollbar-track,
+.settings-drawer::-webkit-scrollbar-track,
+.search-drawer::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+}
+
+.playlist-drawer::-webkit-scrollbar-thumb,
+.mine-panel::-webkit-scrollbar-thumb,
+.mine-wrap::-webkit-scrollbar-thumb,
+.settings-drawer::-webkit-scrollbar-thumb,
+.search-drawer::-webkit-scrollbar-thumb {
+    border: none;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.playlist-drawer::-webkit-scrollbar-thumb:hover,
+.mine-panel::-webkit-scrollbar-thumb:hover,
+.mine-wrap::-webkit-scrollbar-thumb:hover,
+.settings-drawer::-webkit-scrollbar-thumb:hover,
+.search-drawer::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.34);
+}
+
+.playlist-drawer.open {
+    display: flex;
+    animation: drawer-in 0.25s ease-out;
+}
+
+/* 关闭收起动画：与打开方向相反（滑回左侧），播放完才卸载。 */
+.playlist-drawer.closing {
+    display: flex;
+    animation: drawer-out 0.25s ease-in forwards;
+}
+
+@keyframes drawer-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes drawer-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+/* ─── 歌单浮窗播放器：播放页本体全屏滑出（盖住选项卡与「我的」页，顶栏保持可见可操作） ─── */
+/* player-host 常态是 home-content 内的 flex 子项；浮窗模式转 fixed 覆盖。
+   top 避开顶栏（84px），padding 对齐 home-content，保证底栏位置与默认播放器完全一致。 */
+.player-host.fullscreen {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 84px;
+    bottom: 0;
+    /* 常态 height:100% 与 fixed top/bottom 冲突（height 赢 → 底部溢出 84px，底栏被裁），
+       改由 inset 决定高度，保证内容区与默认播放器完全一致。 */
+    height: auto;
+    z-index: 22; /* 低于播放列表侧滑窗(30)/蒙版(25)：浮窗内可再拉起列表 */
+    background-color: #09090b;
+    padding: 8px 48px 72px;
+}
+
+.player-host.fullscreen.open {
+    animation: sheet-up 0.25s ease-out;
+}
+
+.player-host.fullscreen.closing {
+    animation: sheet-down 0.25s ease-in forwards;
+}
+
+@keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes sheet-down {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+/* 浮窗开关按钮（顶栏搜索左侧）：仅歌单播放会话期间显示，chevron-up=打开 / chevron-down=收起。 */
+.sheet-toggle-btn {
+    display: none;
+}
+
+.sheet-toggle-btn.visible {
+    display: flex;
+}
+
+/* 「我的」页包裹层（浮窗 inert 标记所需）：撑满 home-content，不改变内部布局。 */
+.mine-page-host {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}
+
+/* ─── 侧滑页标题块：小号英文斜体装饰 + 歌曲标题同款主标题 + 装饰横线 ─── */
+.drawer-title-block {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-shrink: 0;
+    background-color: #18181b;
+    padding: 20px 24px 16px;
+}
+
+.drawer-title-eyebrow {
+    margin: 0;
+    font-size: 16px;
+    font-style: italic;
+    color: #71717a;
+    letter-spacing: 0.14em;
+}
+
+.drawer-title-main {
+    /* 与播放器歌曲标题（.player-title-text）同款字体样式。 */
+    margin: 4px 0 0;
+    font-size: 44px;
+    font-weight: 600;
+    color: #fafafa;
+    line-height: 1.2;
+}
+
+.drawer-title-line {
+    height: 2px;
+    margin-top: 14px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, #fafafa, rgba(250, 250, 250, 0));
+}
+
+.playlist-drawer-empty {
+    font-size: 20px;
+    color: #71717a;
+    padding: 0 24px;
+    flex-shrink: 0;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    text-align: left;
+    width: 100%;
+    flex-shrink: 0; /* 滚动容器内条目高度不被压缩 */
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    /* TV 焦点指示：白线框改为缩放动效——未选中微缩、选中放大，平滑过渡。 */
+    outline: none;
+    transform: scale(0.96);
+    transition: transform 0.22s ease-out, background-color 0.22s ease-out;
+}
+
+.playlist-item:hover {
+    background-color: rgba(250, 250, 250, 0.06);
+}
+
+.playlist-item:focus {
+    background-color: rgba(250, 250, 250, 0.08);
+    transform: scale(1.04);
+}
+
+.playlist-item.playing .playlist-name {
+    color: #fbbf24;
+}
+
+.playlist-cover {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #27272a;
+    flex-shrink: 0;
+}
+
+.playlist-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+}
+
+.playlist-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fafafa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-artist {
+    font-size: 18px;
+    color: #a1a1aa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-item .stamp {
+    flex-shrink: 0;
+}
+
+/* ─── 「我的」页：特殊歌单入口卡（歌单封面铺底 + 中央图标/名称/数量） ─── */
+.mine-wrap {
+    width: 100%;
+    height: 100%;
+    /* 卡片聚焦放大 1.04 会溢出内容盒，而 overflow-y:auto 会连带裁掉横向溢出：
+       左右 padding 留出放大余量，负 margin 抵消使卡片位置不变。 */
+    padding: 8px 16px 0;
+    margin: 0 -16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.mine-cards {
+    display: flex;
+    gap: 24px;
+}
+
+/* 横向长方形圆角矩形：无边框，背景为首歌歌单封面裁剪铺满（background cover）；宽度为原先二分之一。 */
+.mine-card {
+    position: relative;
+    flex: 0 0 480px;
+    height: 240px;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #18181b;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.2s ease-out, filter 0.2s ease-out;
+}
+
+.mine-card:focus {
+    transform: scale(1.04);
+    filter: brightness(1.15);
+}
+
+/* 封面暗化罩层：保证图标与文字在任意封面上可读。 */
+.mine-card-shade {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(9, 9, 11, 0.55);
+}
+
+.mine-card-body {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #fafafa;
+}
+
+.mine-card-name {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.mine-card-count {
+    font-size: 20px;
+    color: #d4d4d8;
+}
+
+/* ─── 「我的」歌单面板：左侧滑出侧滑层（宽 600px 与播放列表侧滑窗一致），非全屏；
+   未覆盖区域由 drawer-mask 蒙版锁定，与播放列表逻辑一致 ─── */
+.mine-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 600px; /* 480px 的 1.25 倍 */
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    background-color: #18181b;
+    border-right: 1px solid #27272a;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth; /* 焦点移动时列表平滑滚动跟随 */
+    animation: mine-panel-in 0.25s ease-out;
+}
+
+/* 关闭收起动画：滑回左侧，播放完才卸载。 */
+.mine-panel.closing {
+    animation: mine-panel-out 0.25s ease-in forwards;
+}
+
+@keyframes mine-panel-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes mine-panel-out {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+.player-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    gap: 64px;
+}
+
+/* 左区整块（封面+歌曲信息+控制按钮）：宽度与封面一致，整体右移半幅封面宽度，与右区歌词居中对齐。
+   顶部 padding 补偿徽章合并进歌名行省出的行高，保持封面整体位置。 */
+.player-left {
+    width: 480px;
+    flex-shrink: 0;
+    margin-left: 240px;
+    padding-top: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 封面：可聚焦按钮，OK（空格）切换播放/暂停。 */
+.player-cover {
+    width: 480px;
+    height: 480px;
+    border-radius: 20px;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #52525b;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-cover-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 歌名行：歌名在左（溢出走跑马灯），徽章贴最右（与封面右缘对齐，不遮挡）。 */
+.player-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.player-title-viewport {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.player-title-text {
+    display: inline-block;
+    font-size: 44px;
+    font-weight: 600;
+    color: #fafafa;
+    white-space: nowrap;
+}
+
+/* 跑马灯：仅溢出时启用（transform 合成层动画，TV 可承受）。
+   单向滚动：0%~80% 滚到尽头，80%~100% 在尽头停顿，循环时瞬间回到起点重新滚动。 */
+@keyframes title-marquee {
+    0% { transform: translateX(0); }
+    80% { transform: translateX(calc(-1 * var(--marquee-distance, 100px))); }
+    100% { transform: translateX(calc(-1 * var(--marquee-distance, 100px))); }
+}
+
+.player-title-text.scrolling {
+    animation: title-marquee var(--marquee-duration, 8s) linear 1s infinite;
+}
+
+/* 印章标签：上下排列右缘对齐（贴封面右缘）；VIP 宽度自适应不拉伸，音质徽章统一 64px。 */
+.player-stamps {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.stamp {
+    /* 统一尺寸：音质徽章 64px 定宽；VIP 由 .stamp-vip 覆盖为字符自适应。 */
+    font-size: 13px;
+    font-weight: 700;
+    padding: 3px 0;
+    width: 64px;
+    text-align: center;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    box-sizing: border-box;
+}
+
+.stamp-vip {
+    /* VIP 徽章：深绿底浅绿字，宽度随字符自适应（不与音质徽章强制同宽）。 */
+    color: #a7e8a7;
+    background-color: #14532d;
+    width: auto;
+    padding: 3px 10px;
+}
+
+/* 音质徽章填充色阶：标准=浅蓝 / 高品质=浅绿 / 无损=浅橙 / Hi-Res=香槟金；未知档位回退描边灰。 */
+.stamp-quality {
+    color: #09090b;
+}
+.stamp-quality.q-standard { background-color: #7fb8e6; }
+.stamp-quality.q-high { background-color: #8fd4a0; }
+.stamp-quality.q-lossless { background-color: #f0b27a; }
+.stamp-quality.q-hires { background-color: #e6d690; }
+.stamp-quality:not([class*=" q-"]) {
+    color: #a1a1aa;
+    border: 1px solid #3f3f46;
+}
+
+.player-artist {
+    font-size: 26px;
+    color: #a1a1aa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 音乐控制按钮：上一曲/播放暂停/下一曲，无背板线条图标，居中于左列。 */
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+    margin-top: 8px;
+}
+
+.player-ctrl-btn {
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    color: #fafafa;
+}
+
+/* 逐字歌词区：当前行上下共 8 行窗口，卡拉OK式字级高亮（纯色无动画）。 */
+.player-lyrics {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 莫奈轨道模式下歌词内容全部绝对定位，父链任一层 hug 内容都会塌缩为 0，须显式撑满。 */
+    align-self: stretch;
+}
+
+.player-lyrics-empty {
+    font-size: 26px;
+    color: #52525b;
+}
+
+.player-lyrics-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+/* 歌词行字体与莫奈模式及播放器歌曲名称一致（44px/600）；
+   非在播行 transform 缩小形成大小差异（纯合成层，切换平滑）。 */
+.lyric-line {
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #52525b;
+    text-align: center;
+    transform: scale(0.82);
+    transform-origin: center;
+    transition: transform 0.2s ease-out;
+}
+
+.lyric-line.active {
+    transform: scale(1);
+}
+
+.lyric-line.active .lyric-word {
+    color: #71717a;
+}
+
+.lyric-line.active .lyric-word.sung {
+    color: #fafafa;
+}
+
+/* ─── 莫奈歌词动效（设置开关开启时）：整句弹性滚动 + 逐字扫色染色 + 当前字光晕 ───
+   复刻 Monet 固定 transform 轨道：行绝对定位在各自全局位置，当前句播完后整条轨道
+   弹性滚动一行（旧行弹性缩小、新行弹性放大到当前句）；逐字染色为双层字（底层未唱色+光晕、
+   顶层亮色 clip 扫过），时间轴由 CSS animation 按字起始时刻驱动（负 delay 对齐 seek、
+   暂停即冻结），零逐帧 JS。 */
+.player-lyrics-list.mo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* 父级 .player-main 为 align-items:center，不拉伸会让纯绝对定位内容的容器高度塌缩为 0。 */
+    align-self: stretch;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 82%, transparent 100%);
+}
+
+/* 轨道：top 50% 锚定当前行居中，--mo-active 变化时整条轨道弹性滚动一行。
+   行高 64px（--mo-line-h）：30px 字号单行 + 均匀行距。 */
+.mo-rail {
+    --mo-line-h: 64px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(calc(-1 * var(--mo-active) * var(--mo-line-h) - var(--mo-line-h) / 2));
+    transition: transform 0.55s cubic-bezier(0.22, 0.9, 0.28, 1);
+    will-change: transform;
+}
+
+/* 行：轨道上自己的全局位置（--idx），状态切换时弹性缩放（轻微过冲）。
+   字体与播放器歌曲名称（.player-title-text）同款 44px/600；非当前行靠 scale 缩小（Monet 同款）。 */
+.player-lyrics-list.mo .lyric-line {
+    position: absolute;
+    top: calc(var(--idx) * var(--mo-line-h));
+    left: 0;
+    right: 0;
+    height: var(--mo-line-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: mo-line-in 0.3s ease-out both;
+    transition:
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease-out,
+        filter 0.3s ease-out;
+    transform-origin: center;
+}
+
+@keyframes mo-line-in {
+    from { opacity: 0; }
+}
+
+/* 行状态色调：active 满亮满大，passed/waiting 随距离弹性缩小淡化（对应 Monet tone 分级）。 */
+.lyric-line.mo.passed {
+    opacity: 0.3;
+    transform: scale(0.62);
+    filter: blur(1.2px);
+}
+
+.lyric-line.mo.waiting[data-offset="1"] {
+    opacity: 0.62;
+    transform: scale(0.72);
+    filter: blur(0.5px);
+}
+
+.lyric-line.mo.waiting[data-offset="2"] {
+    opacity: 0.46;
+    transform: scale(0.66);
+    filter: blur(1px);
+}
+
+.lyric-line.mo.waiting:not([data-offset="1"]):not([data-offset="2"]) {
+    opacity: 0.34;
+    transform: scale(0.62);
+    filter: blur(1.6px);
+}
+
+.lyric-line.mo.active {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+    color: #71717a; /* active 行未唱字色 */
+}
+
+/* 逐字双层：底层未唱色 + 当前字光晕脉冲；顶层亮色 clip 从左到右扫过。 */
+.mo-word {
+    position: relative;
+    display: inline-block;
+}
+
+.mo-word-base {
+    color: inherit;
+    animation: mo-word-glow var(--wdur) ease-in-out var(--wdelay) both;
+}
+
+.mo-word-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #fafafa;
+    pointer-events: none;
+    clip-path: inset(-10% 100% -10% -10%);
+    animation: mo-word-fill var(--wdur) linear var(--wdelay) both;
+}
+
+@keyframes mo-word-fill {
+    from { clip-path: inset(-10% 100% -10% -10%); }
+    to { clip-path: inset(-10% -10% -10% -10%); }
+}
+
+@keyframes mo-word-glow {
+    0%, 100% { text-shadow: 0 0 0 rgba(250, 250, 250, 0); }
+    45% { text-shadow: 0 0 16px rgba(250, 250, 250, 0.5); }
+}
+
+/* 暂停时冻结全部字级动画（CSS 时钟与音频时钟同步停走，恢复后续播）。 */
+.mo-rail.paused .mo-word-base,
+.mo-rail.paused .mo-word-fill {
+    animation-play-state: paused;
+}
+
+.player-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+}
+
+.player-actions {
+    display: flex;
+    gap: 36px;
+}
+
+/* 无背板线条图标按钮，与顶栏一致。 */
+.player-action-btn {
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    color: #fafafa;
+}
+
+.player-progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.progress-time {
+    font-size: 20px;
+    color: #a1a1aa;
+    font-variant-numeric: tabular-nums;
+}
+
+.progress-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #27272a;
+    cursor: pointer;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+/* ─── 弹框（登录 / 用户信息） ─── */
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+/* ─── 设置侧滑页（右侧滑出，版式与播放列表侧滑窗一致） ─── */
+.settings-drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 720px; /* 设置页固定宽度（与歌单列表宽度无联动） */
+    display: flex;
+    flex-direction: column;
+    background-color: #18181b;
+    border-left: 1px solid #27272a;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 30;
+    outline: none;
+    scroll-behavior: smooth;
+}
+
+.settings-drawer.open {
+    animation: drawer-in-right 0.25s ease-out;
+}
+
+.settings-drawer.closing {
+    animation: drawer-out-right 0.25s ease-in forwards;
+}
+
+@keyframes drawer-in-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* ─── 搜索侧滑面板：右侧滑出，宽度半屏，版式与设置页一致 ─── */
+.search-drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 600px; /* 与歌单列表宽度一致 */
+    display: flex;
+    flex-direction: column;
+    background-color: #18181b;
+    border-left: 1px solid #27272a;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 30;
+    scroll-behavior: smooth;
+}
+
+.search-drawer.open {
+    animation: drawer-in-right 0.25s ease-out;
+}
+
+.search-drawer.closing {
+    animation: drawer-out-right 0.25s ease-in forwards;
+}
+
+/* 标题行：左侧标题组（斜体装饰+主标题+横线），右侧搜索框同行对齐。 */
+.search-title-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.search-title-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.search-input {
+    width: 360px;
+    padding: 12px 16px;
+    font-size: 22px;
+    color: #fafafa;
+    background-color: #09090b;
+    border: 1px solid #27272a;
+    border-radius: 10px;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #52525b;
+}
+
+.search-input:focus {
+    border-color: rgba(250, 250, 250, 0.35);
+    background-color: rgba(250, 250, 250, 0.06);
+}
+
+@keyframes drawer-out-right {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+.dialog-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 36px 56px;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 24px;
+    outline: none;
+}
+
+.dialog-title {
+    font-size: 32px;
+    font-weight: 600;
+}
+
+/* 设置面板：设置项分组 + 挡位按钮（左右组内循环，当前挡位高亮）。 */
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 36px 24px 8px; /* 分块间距加大（上下块留白充足） */
+}
+
+.settings-label {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fafafa;
+}
+
+.settings-hint {
+    font-size: 20px;
+    color: #a1a1aa;
+}
+
+/* 缓存板块：已用量统计与清空按钮同行。 */
+.settings-cache-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 12px;
+}
+.settings-cache-row .settings-option {
+    width: auto;
+    padding: 8px 24px;
+}
+
+.settings-options {
+    display: flex;
+    flex-wrap: wrap; /* 480px 侧滑页内放不下整行时换行 */
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.settings-option {
+    padding: 14px 32px;
+    font-size: 26px;
+    color: #a1a1aa;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    /* 焦点指示：白框线改为大小对比 + 平滑滑动（放大）动效。 */
+    outline: none;
+    transition: transform 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.settings-option:focus {
+    transform: scale(1.1);
+    background-color: rgba(250, 250, 250, 0.1);
+    border-color: rgba(250, 250, 250, 0.35);
+}
+
+.settings-option:focus.active {
+    /* 当前挡位本身白底黑字，聚焦时保持底色仅放大。 */
+    background-color: #fafafa;
+    color: #09090b;
+}
+
+.settings-option.active {
+    color: #09090b;
+    background-color: #fafafa;
+    border-color: #fafafa;
+    font-weight: 600;
+}
+
+.dialog-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a1a1aa;
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    border-radius: 10px;
+}
+
+.qr-image {
+    width: 320px;
+    height: 320px;
+    border-radius: 12px;
+    background-color: #fafafa;
+}
+
+.login-status-line {
+    font-size: 24px;
+    color: #a1a1aa;
+}
+
+.login-status-line.ok {
+    color: #4ade80;
+}
+
+.login-status-line.bad {
+    color: #f87171;
+}
+
+.login-error {
+    font-size: 20px;
+    color: #f87171;
+    max-width: 900px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* TV 通用按钮：实色圆角矩形，无阴影无渐变。 */
+.tv-btn {
+    padding: 14px 40px;
+    font-size: 24px;
+    color: #fafafa;
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+}
+
+.tv-btn {
+    /* 常态样式保持，焦点动效统一走 :focus 规则（见上方全局焦点语言）。 */
+    transition: transform 0.2s ease-out, border-color 0.2s ease-out, background-color 0.2s ease-out;
+}
+
+.tv-btn:focus {
+    outline: none;
+    transform: scale(1.1);
+    border-color: rgba(250, 250, 250, 0.35);
+    background-color: rgba(250, 250, 250, 0.1);
+}
+
+/* ─── 用户信息 ─── */
+
+.user-avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: #fafafa;
+    background-color: #3f3f46;
+}
+
+.user-name {
+    font-size: 36px;
+    font-weight: 600;
+}

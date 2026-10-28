@@ -1,0 +1,25 @@
+{
+  "appId": "top.izuna.solis.tv",
+  "appName": "Solis",
+  "webDir": "dist",
+  "backgroundColor": "#09090b",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "http",
+    "hostname": "localhost",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 900,
+      "backgroundColor": "#09090b",
+      "showSpinner": false
+    },
+    "SystemBars": {
+      "style": "DARK"
+    }
+  }
+}

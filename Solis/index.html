@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- TV 无状态栏/刘海，viewport-fit=cover 保持全屏；无缩放（遥控器设备）。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#09090b" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <title>Solis</title>
+    <style>
+      /* 首帧防白屏：React 挂载前保持黑底。 */
+      html, body { background-color: #09090b; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
